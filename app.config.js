@@ -83,7 +83,7 @@ export default {
       policy: "appVersion"
     },
     updates: {
-      url: "https://u.expo.dev/0f11db80-4bb6-49fc-abc4-94e0e1c95e41"
+      url: false
     }
   }
 };

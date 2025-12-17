@@ -24,48 +24,33 @@ const Drawer = createDrawerNavigator();
 export default function App() {
   const notificationInitialized = useRef(false);
 
-   useEffect(() => {
-    const initializeNotifications = async () => {
-    if (notificationInitialized.current) {
-        console.log('🔔 Notifications already initialized, skipping...');
-        return;
-      }
+  useEffect(() => {
+  let subscription;
 
-      try {
-        const initialized = await NotificationService.initialize();
-        if (initialized) {
-          console.log('🔔 Meal notifications enabled');
-          notificationInitialized.current = true; // Mark as initialized
-        }
-      } catch (error) {
-        console.error('Error initializing notifications:', error);
-      }
-    };
-    
-    initializeNotifications();
-
-    let subscription;
-    
-    try {
-      // Import Notifications directly to avoid the service method issue
-      const { Notifications } = require('expo-notifications');
-      
-      subscription = Notifications.addNotificationResponseReceivedListener(response => {
-        const screen = response.notification.request.content.data?.screen;
-        if (screen) {
-          console.log('📱 Notification tapped, navigate to:', screen);
-        }
-      });
-    } catch (error) {
-      console.log('📱 Notification responses not available in Expo Go');
+  const init = async () => {
+    // 🚫 Disable notifications in Expo Go
+    if (__DEV__) {
+      console.log('🔕 Notifications disabled in Expo Go (dev mode)');
+      return;
     }
-    
-    return () => {
-      if (subscription) {
-        subscription.remove();
+
+    try {
+      const initialized = await NotificationService.initialize();
+      if (initialized) {
+        console.log('🔔 Notifications enabled');
+        notificationInitialized.current = true;
       }
-    };
-  }, []);
+    } catch (err) {
+      console.log('Notification init failed:', err);
+    }
+  };
+
+  init();
+
+  return () => {
+    if (subscription) subscription.remove();
+  };
+}, []);
 
 
   return (
